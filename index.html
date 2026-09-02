@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module Selector</title>
+  <style>
+    /* Mobile-first, clean aesthetic */
+    :root {
+      --bg-color: #f4f4f6;
+      --card-bg: #ffffff;
+      --primary-blue: #007aff;
+      --text-main: #1d1d1f;
+      --text-muted: #86868b;
+      --border-color: #d2d2d7;
+      --success-green: #34c759;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      padding-bottom: 160px; /* Space for sticky footer */
+    }
+
+    header {
+      padding: 20px;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    h1 { margin: 0; font-size: 24px; }
+    h2 { font-size: 18px; margin-top: 20px; padding: 0 20px; color: var(--text-muted); }
+
+    .module-list {
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Semester Separator */
+    .semester-separator {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--text-muted);
+      margin-top: 15px;
+      margin-bottom: 5px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Card styling for mobile */
+    .module-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .module-info {
+      display: flex;
+      flex-direction: column;
+      max-width: 80%;
+    }
+
+    .module-code { font-weight: bold; font-size: 14px; color: var(--primary-blue); }
+    .module-name { font-size: 16px; margin: 4px 0; line-height: 1.3; }
+
+    /* Custom Checkbox */
+    input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      accent-color: var(--primary-blue);
+      flex-shrink: 0;
+    }
+
+    /* Sticky Footer */
+    .sticky-summary {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      padding: 16px 20px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      z-index: 100;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .summary-value {
+      font-weight: bold;
+    }
+
+    .total-row {
+      grid-column: span 2;
+      font-weight: bold;
+      font-size: 16px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+    
+    .requirement-met { color: var(--success-green); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Computer Engineering Elective modules</h1>
+  </header>
+
+  <main>
+    <h2>Complementary Studies</h2>
+    <div class="module-list" id="ge-list"></div>
+
+    <h2>Engineering Science & Projects</h2>
+    <div class="module-list" id="te-list"></div>
+  </main>
+
+  <div class="sticky-summary">
+    <div class="summary-grid">
+        <div class="summary-item"><span>Core Modules:</span> <span class="summary-value">123</span></div>
+        <div class="summary-item"><span>Complementary:</span> <span id="ge-total" class="summary-value">0</span></div>
+        <div class="summary-item"><span>Engineering Science & Projects (Min 18):</span> <span id="te-total" class="summary-value">0</span></div>
+        <div class="summary-item"><span>All TE/GE (Min 29):</span> <span id="combined-total" class="summary-value">0</span></div>
+        <div class="summary-item total-row"><span>Total (Req 150):</span> <span id="overall-total" class="summary-value">123</span></div>    
+    </div>
+  </div>
+
+  <script>
+    const BASE_CREDITS = 123; 
+
+    const modules = [
+      // --- Complementary Studies (GE) ---
+      { code: "IS4224", name: "Financial Management (GE)", credits: 2, type: "GE", semester: 4 },
+      { code: "IS4225", name: "Innovation Management & Entrepreneurship (GE)", credits: 2, type: "GE", semester: 4 },
+      { code: "IS4121", name: "Appreciation of Music", credits: 1, type: "GE", semester: 4 },
+      { code: "IS4123", name: "Digital Modeling and Animation", credits: 1, type: "GE", semester: 4 },
+      { code: "IS4126", name: "Mindfulness", credits: 1, type: "GE", semester: 4 },
+      { code: "IS4128", name: "Industrial Sociology", credits: 1, type: "GE", semester: 4 },
+      
+      { code: "IS5221", name: "Industrial Management (GE)", credits: 2, type: "GE", semester: 5 },
+      { code: "IS5222", name: "Organizational Behaviour and Human Resource Management (GE)", credits: 2, type: "GE", semester: 5 },
+      { code: "IS5123", name: "Project Management (GE)", credits: 1, type: "GE", semester: 5 },
+      
+      { code: "IS6121", name: "Industrial Law (GE)", credits: 1, type: "GE", semester: 6 },
+      
+      { code: "IS7221", name: "Academic English (GE)", credits: 2, type: "GE", semester: 7 },
+      { code: "IS7122", name: "Business communication for Engineers (GE)", credits: 1, type: "GE", semester: 7 },
+      
+      { code: "IS8221", name: "English for the Professional World (GE)", credits: 2, type: "GE", semester: 8 },
+
+      // --- Engineering Science, Engineering Design and Projects (TE) ---
+      { code: "EC5211", name: "DevOps Engineering (TE)", credits: 2, type: "TE", semester: 5 },
+      { code: "EC5212", name: "Hardware Description Language (TE)", credits: 2, type: "TE", semester: 5 },
+      { code: "EC5213", name: "Mobile Application Development (TE)", credits: 2, type: "TE", semester: 5 },
+      
+      { code: "EC6211", name: "Digital Signal Processing (TE)", credits: 2, type: "TE", semester: 6 },
+      { code: "EC6214", name: "Software Architecture (TE)", credits: 2, type: "TE", semester: 6 },
+      { code: "EC6215", name: "Wireless Communications (TE)", credits: 2, type: "TE", semester: 6 },
+      
+      { code: "EC7211", name: "Advanced Artificial Intelligence (TE)", credits: 2, type: "TE", semester: 7 },
+      { code: "EC7212", name: "Computer Vision and Image Processing (TE)", credits: 2, type: "TE", semester: 7 },
+      { code: "EC7213", name: "Human Computer Interaction (TE)", credits: 2, type: "TE", semester: 7 },
+      { code: "EC7214", name: "Introduction to Robotics and Automation (TE)", credits: 2, type: "TE", semester: 7 },
+      { code: "EC7215", name: "Optimization Techniques for Engineers (TE)", credits: 2, type: "TE", semester: 7 },
+      { code: "EC7216", name: "Parallel and Distributed Computing (TE)", credits: 2, type: "TE", semester: 7 },
+      
+      { code: "EC8211", name: "Bioinformatics (TE)", credits: 2, type: "TE", semester: 8 },
+      { code: "EC8212", name: "Big Data and Analytics (TE)", credits: 2, type: "TE", semester: 8 },
+      { code: "EC8213", name: "Blockchain and Cyber Security (TE)", credits: 2, type: "TE", semester: 8 },
+      { code: "EC8314", name: "Design and Management of Networks (TE)", credits: 3, type: "TE", semester: 8 },
+      { code: "EC8215", name: "Functional Programming (TE)", credits: 2, type: "TE", semester: 8 },
+      { code: "EC8216", name: "IC Design (TE)", credits: 2, type: "TE", semester: 8 },
+      { code: "EC8217", name: "Virtual and Augmented Reality (TE)", credits: 2, type: "TE", semester: 8 }
+    ];
+
+    let state = {
+      geCredits: 0,
+      teCredits: 0
+    };
+
+    function renderModules() {
+      const geContainer = document.getElementById('ge-list');
+      const teContainer = document.getElementById('te-list');
+      
+      let lastGeSemester = 0;
+      let lastTeSemester = 0;
+
+      modules.forEach((mod, index) => {
+        const card = document.createElement('div');
+        card.className = 'module-card';
+        
+        // Removed 'Semester X', added credits next to module code
+        card.innerHTML = `
+          <div class="module-info">
+            <span class="module-code">${mod.code} • ${mod.credits} Credit(s)</span>
+            <span class="module-name">${mod.name}</span>
+          </div>
+          <input type="checkbox" id="mod-${index}" data-index="${index}">
+        `;
+
+        card.querySelector('input').addEventListener('change', handleSelection);
+
+        if (mod.type === 'GE') {
+          // Add semester separator if semester changes
+          if (mod.semester !== lastGeSemester) {
+            const separator = document.createElement('div');
+            separator.className = 'semester-separator';
+            separator.textContent = `Semester ${mod.semester}`;
+            geContainer.appendChild(separator);
+            lastGeSemester = mod.semester;
+          }
+          geContainer.appendChild(card);
+          
+        } else if (mod.type === 'TE') {
+          // Add semester separator if semester changes
+          if (mod.semester !== lastTeSemester) {
+            const separator = document.createElement('div');
+            separator.className = 'semester-separator';
+            separator.textContent = `Semester ${mod.semester}`;
+            teContainer.appendChild(separator);
+            lastTeSemester = mod.semester;
+          }
+          teContainer.appendChild(card);
+        }
+      });
+    }
+
+    function handleSelection(event) {
+      const isChecked = event.target.checked;
+      const moduleIndex = event.target.getAttribute('data-index');
+      const mod = modules[moduleIndex];
+
+      if (isChecked) {
+        if (mod.type === 'GE') state.geCredits += mod.credits;
+        if (mod.type === 'TE') state.teCredits += mod.credits;
+      } else {
+        if (mod.type === 'GE') state.geCredits -= mod.credits;
+        if (mod.type === 'TE') state.teCredits -= mod.credits;
+      }
+
+      updateUI();
+    }
+
+    function updateUI() {
+      const combined = state.geCredits + state.teCredits;
+      const overall = BASE_CREDITS + combined;
+
+      const geEl = document.getElementById('ge-total');
+      const teEl = document.getElementById('te-total');
+      const combinedEl = document.getElementById('combined-total');
+      const overallEl = document.getElementById('overall-total');
+
+      geEl.textContent = state.geCredits;
+      teEl.textContent = state.teCredits;
+      combinedEl.textContent = combined;
+      overallEl.textContent = overall;
+
+      // Used classList.toggle to avoid overwriting the 'summary-value' class
+      geEl.classList.toggle('requirement-met', state.geCredits >= 2);
+      teEl.classList.toggle('requirement-met', state.teCredits >= 18);
+      combinedEl.classList.toggle('requirement-met', combined >= 29);
+      overallEl.classList.toggle('requirement-met', overall >= 150);
+    }
+
+    // Initialize the app
+    renderModules();
+  </script>
+</body>
+</html>
