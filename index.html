@@ -126,15 +126,21 @@
 </head>
 <body>
 
-  <header>
-    <h1>Computer Engineering Elective modules</h1>
-  </header>
+    <header style="display: flex; align-items: center; justify-content: space-between; padding: 20px;">
+    <div>
+        <h1 style="font-size: 20px; margin: 0;">Computer Engineering Elective Modules</h1>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0 0; line-height: 1.4;">
+        Select your technical and complementary electives to track your progress and ensure you meet the degree credit requirements in real-time.
+        </p>
+    </div>
+    <img src="thsl-logo.svg" alt="Logo" style="width: 36px; height: 36px; object-fit: contain;">
+    </header>
 
   <main>
-    <h2>Complementary Studies</h2>
+    <h2>Complementary Studies (Min 2 Credits)</h2>
     <div class="module-list" id="ge-list"></div>
 
-    <h2>Engineering Science & Projects</h2>
+    <h2>Engineering Science & Projects (Min 18 Credits)</h2>
     <div class="module-list" id="te-list"></div>
   </main>
 
@@ -142,7 +148,7 @@
     <div class="summary-grid">
         <div class="summary-item"><span>Core Modules:</span> <span class="summary-value">123</span></div>
         <div class="summary-item"><span>Complementary:</span> <span id="ge-total" class="summary-value">0</span></div>
-        <div class="summary-item"><span>Engineering Science & Projects (Min 18):</span> <span id="te-total" class="summary-value">0</span></div>
+        <div class="summary-item"><span>Engineering Science & Projects:</span> <span id="te-total" class="summary-value">0</span></div>
         <div class="summary-item"><span>All TE/GE (Min 29):</span> <span id="combined-total" class="summary-value">0</span></div>
         <div class="summary-item total-row"><span>Total (Req 150):</span> <span id="overall-total" class="summary-value">123</span></div>    
     </div>
